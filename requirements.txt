@@ -1,0 +1,9 @@
+flask
+flask-sqlalchemy
+flask-login
+openai
+google-generativeai
+python-dotenv
+scikit-learn
+pandas
+numpy

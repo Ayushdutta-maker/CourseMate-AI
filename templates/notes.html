@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-section">
+    <h1>Study Notes Generator</h1>
+    <p>Enter a topic below to generate a comprehensive, structured study guide instantly.</p>
+</div>
+
+<div class="auth-glass-card">
+    <div class="form-field">
+        <label for="topic" class="display-font" style="font-size: 1.2rem; margin-bottom: 1rem; display: block; color: var(--accent);">What's the subject or document?</label>
+        
+        <div class="dual-input-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="input-group">
+                <input type="text" id="topic" class="form-input-v2" placeholder="e.g. Quantum Physics, History of Art" style="margin-bottom: 0;">
+                <p class="field-hint" style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem;">Enter a topic for AI-driven research...</p>
+            </div>
+
+            <div class="options-row" style="display: flex; gap: 1rem; margin-top: -0.5rem;">
+                <div class="input-group" style="flex: 1;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Academic Level</label>
+                    <select id="level" class="form-input-v2" style="padding: 0.6rem;">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate" selected>Intermediate</option>
+                        <option value="Advanced">Advanced / Expert</option>
+                    </select>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Generation Mode</label>
+                    <select id="mode" class="form-input-v2" style="padding: 0.6rem;">
+                        <option value="Standard">Standard</option>
+                        <option value="Deep Dive" selected>Deep Dive</option>
+                        <option value="Quick Revision">Quick Revision</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-text" style="text-align: center; color: var(--accent); opacity: 0.5; font-size: 0.9rem;">— OR UPLOAD SOURCE —</div>
+
+            <div class="input-group">
+                <div class="file-upload-zone" id="drop-zone">
+                    <input type="file" id="note-file" accept=".pdf,.txt" style="display: none;">
+                    <label for="note-file" class="file-label">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                        <span>Click to upload PDF/TXT or drag & drop</span>
+                        <p id="file-name" class="hidden" style="margin-top: 0.5rem; color: var(--accent); font-weight: bold;"></p>
+                    </label>
+                </div>
+            </div>
+
+            <button class="primary-btn p-btn-wide" id="gen-btn" style="margin-top: 1rem;">Process & Generate Notes</button>
+        </div>
+    </div>
+    
+    <div id="loader" class="loader-container hidden">
+        <div class="spinner"></div>
+        <p>Analyzing source data... Synthesizing academic manuscript.</p>
+    </div>
+
+    <div id="notes-result" class="result-container hidden">
+        <div class="result-header">
+            <h2 id="result-title">Manuscript Output</h2>
+            <button class="badge clickable-badge" onclick="window.print()">
+                <i class="fas fa-print"></i> Export to PDF
+            </button>
+        </div>
+        <div id="notes-content" class="output-paper"></div>
+        
+        <!-- RAG Chat Integration -->
+        <div class="rag-chat-section mt-4">
+            <div class="divider-text">QUANTUM NOTES Q&A</div>
+            <div id="rag-messages" class="rag-chat-history">
+                <div class="ai-msg">I've parsed the document. You can now ask specific questions based on this content.</div>
+            </div>
+            <div class="rag-input-container">
+                <input type="text" id="rag-input" placeholder="Ask anything about these notes..." class="form-input-v2">
+                <button id="rag-send" class="primary-btn auto-width"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const topicInput = document.getElementById('topic');
+    const fileInput = document.getElementById('note-file');
+    const fileNameDisplay = document.getElementById('file-name');
+    const genBtn = document.getElementById('gen-btn');
+    const resultDiv = document.getElementById('notes-result');
+    const contentDiv = document.getElementById('notes-content');
+    const resultTitle = document.getElementById('result-title');
+    const loader = document.getElementById('loader');
+
+    // Handle file name display
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.innerText = `Selected: ${fileInput.files[0].name}`;
+            fileNameDisplay.classList.remove('hidden');
+        }
+    });
+
+    genBtn.addEventListener('click', async () => {
+        const topic = topicInput.value.trim();
+        const file = fileInput.files[0];
+
+        if (!topic && !file) {
+            alert("Please provide a topic or upload a file.");
+            return;
+        }
+
+        loader.classList.remove('hidden');
+        resultDiv.classList.add('hidden');
+
+        try {
+            const formData = new FormData();
+            if (topic) formData.append('topic', topic);
+            if (file) formData.append('file', file);
+            formData.append('level', document.getElementById('level').value);
+            formData.append('mode', document.getElementById('mode').value);
+
+            const response = await fetch('/api/generate-notes', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            resultTitle.innerText = topic || (file ? `Analysis: ${file.name}` : "Manuscript Output");
+            contentDiv.innerHTML = marked.parse(data.notes);
+            resultDiv.classList.remove('hidden');
+        } catch (error) {
+            alert("Synthesis link failure. Please re-initiate.");
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+
+    // RAG Chat Logic
+    const ragInput = document.getElementById('rag-input');
+    const ragSend = document.getElementById('rag-send');
+    const ragMessages = document.getElementById('rag-messages');
+
+    async function sendRagQuery() {
+        const query = ragInput.value.trim();
+        if (!query) return;
+
+        // User message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'user-msg';
+        userDiv.innerText = query;
+        ragMessages.appendChild(userDiv);
+        ragInput.value = '';
+        ragMessages.scrollTop = ragMessages.scrollHeight;
+
+        try {
+            const response = await fetch('/api/rag-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await response.json();
+            
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'ai-msg';
+            aiDiv.innerText = data.response;
+            ragMessages.appendChild(aiDiv);
+            ragMessages.scrollTop = ragMessages.scrollHeight;
+        } catch (error) {
+            const errDiv = document.createElement('div');
+            errDiv.className = 'ai-msg error';
+            errDiv.innerText = "Quantum link severed. Retrying...";
+            ragMessages.appendChild(errDiv);
+        }
+    }
+
+    ragSend.addEventListener('click', sendRagQuery);
+    ragInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendRagQuery();
+    });
+</script>
+{% endblock %}

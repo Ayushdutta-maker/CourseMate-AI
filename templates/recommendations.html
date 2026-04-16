@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-section">
+    <h1>Course Pathfinder</h1>
+    <p>Discover courses and topics tailored to your interests and career goals.</p>
+</div>
+
+<div class="auth-glass-card container-narrow">
+    <div class="form-field" id="rec-init">
+        <div class="career-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+            <div class="input-group">
+                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Interests & Passion</label>
+                <input type="text" id="interest-input" class="form-input-v2" placeholder="e.g. AI, Space, Finance">
+            </div>
+            <div class="input-group">
+                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Current Skill Level</label>
+                <select id="level-input" class="form-input-v2">
+                    <option value="Beginner">Beginner / Student</option>
+                    <option value="Intermediate">Intermediate / Junior Prof</option>
+                    <option value="Advanced">Advanced / Expert</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Core Goal</label>
+                <input type="text" id="goal-input" class="form-input-v2" placeholder="e.g. Become a Sr. Data Scientist">
+            </div>
+            <div class="input-group">
+                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Time Availability</label>
+                <select id="time-input" class="form-input-v2">
+                    <option value="Part-time (5-10 hrs/week)">Part-time (5-10 hrs/week)</option>
+                    <option value="Moderate (15-25 hrs/week)">Moderate (15-25 hrs/week)</option>
+                    <option value="Full-immersion (40+ hrs/week)">Full-immersion (40+ hrs/week)</option>
+                </select>
+            </div>
+        </div>
+        <button class="primary-btn p-btn-wide mt-4" id="generate-btn">Synthesize Career Roadmap</button>
+    </div>
+
+    <div id="rec-loader" class="loader-container hidden">
+        <div class="spinner"></div>
+        <p>Parsing trajectory data... Stand by.</p>
+    </div>
+
+    <div id="results-section" class="result-container hidden">
+        <div class="result-header mb-3">
+            <h2>Optimized Pathways</h2>
+            <button class="badge clickable-badge" onclick="resetSearch()">Refine Parameters</button>
+        </div>
+        
+        <div id="recommendations-content" class="output-paper" style="max-height: 60vh; overflow-y: auto;">
+            <!-- Roadmap content as Markdown -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const interestInput = document.getElementById('interest-input');
+    const generateBtn = document.getElementById('generate-btn');
+    const loader = document.getElementById('rec-loader');
+    const initSection = document.getElementById('rec-init');
+    const resultsSection = document.getElementById('results-section');
+    generateBtn.addEventListener('click', async () => {
+        const interests = interestInput.value.trim();
+        const level = document.getElementById('level-input').value;
+        const goal = document.getElementById('goal-input').value.trim();
+        const time = document.getElementById('time-input').value;
+
+        if (!interests || !goal) {
+            alert("Please specify your interests and goal.");
+            return;
+        }
+
+        initSection.classList.add('hidden');
+        loader.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interests, level, goal, time })
+            });
+            const data = await response.json();
+            
+            if (data.roadmap) {
+                displayRecommendations(data.roadmap);
+            } else {
+                throw new Error("Empty roadmap");
+            }
+        } catch (error) {
+            alert("Trajectory simulation failure. The AI engine is currently optimizing. Please try again.");
+            initSection.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+
+    function displayRecommendations(roadmap) {
+        document.getElementById('recommendations-content').innerHTML = marked.parse(roadmap);
+        resultsSection.classList.remove('hidden');
+    }
+
+    function resetSearch() {
+        resultsSection.classList.add('hidden');
+        initSection.classList.remove('hidden');
+        interestInput.value = '';
+    }
+</script>
+{% endblock %}

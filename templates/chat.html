@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content_class %}chat-page-wrapper{% endblock %}
+
+{% block content %}
+<div class="chat-window-integrated">
+    <div class="integrated-header">
+        <h1>ACADEMIC AI ASSISTANT</h1>
+        <div class="status-indicator">
+            <span class="dot"></span> SECURE NEURAL LINK
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+        <div class="message-bubble ai-bubble">
+            Hello! I am your AI Study Partner. How can I help you today?
+        </div>
+    </div>
+
+    <div class="chat-input-wrapper">
+        <div class="spinner spinner-sm hidden" id="chat-spinner" style="position: absolute; left: -40px; top: 12px;"></div>
+        <input type="text" id="chat-input" class="styled-input" placeholder="Query the academic engine..." autocomplete="off">
+        <button id="send-btn" class="send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const spinner = document.getElementById('chat-spinner');
+
+    function addMessage(text, isUser) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message-bubble ${isUser ? 'user-bubble' : 'ai-bubble'}`;
+        
+        if (isUser) {
+            msgDiv.innerText = text;
+        } else {
+            msgDiv.innerHTML = marked.parse(text);
+        }
+        
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function handleSend() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, true);
+        chatInput.value = '';
+        spinner.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            addMessage(data.response, false);
+        } catch (error) {
+            addMessage("Sorry, the neural link was interrupted. Please re-engage.", false);
+        } finally {
+            spinner.classList.add('hidden');
+        }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSend();
+    });
+</script>
+{% endblock %}

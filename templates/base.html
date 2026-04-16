@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseMate AI - Intelligent Learning</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="{{ url_for('dashboard') }}" class="logo">
+            <i class="fas fa-brain"></i>
+            <span class="logo-text">CourseMate AI</span>
+        </a>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('chat') }}" class="nav-link {% if '/chat' in request.path %}active{% endif %}">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('notes') }}" class="nav-link {% if '/notes' in request.path %}active{% endif %}">
+                    <i class="fas fa-file-edit"></i>
+                    <span>Study Notes</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('quiz') }}" class="nav-link {% if '/quiz' in request.path %}active{% endif %}">
+                    <i class="fas fa-vial"></i>
+                    <span>Quiz Lab</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('recommendations') }}" class="nav-link {% if '/recommendations' in request.path %}active{% endif %}">
+                    <i class="fas fa-route"></i>
+                    <span>Pathfinder</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="nav-link">
+                <i class="fas fa-microchip"></i>
+                <span>Quantum Engine Active</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <nav class="navbar">
+            <div class="welcome-text">
+                <i class="fas fa-circle-dot" style="margin-right: 8px; font-size: 10px;"></i>
+                NEURAL CORE ONLINE
+            </div>
+            <div class="profile">
+                <span>Academic Admin</span>
+                <div class="profile-img">AA</div>
+            </div>
+        </nav>
+        
+        <div class="content-wrapper {% block content_class %}{% endblock %}">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

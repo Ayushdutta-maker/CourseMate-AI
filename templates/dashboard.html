@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-section">
+    <h1>Academic Command Center</h1>
+    <p>Your intelligent learning workspace is ready. Select a module below to begin your session.</p>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-history"></i></div>
+        <div class="stat-info">
+            <span class="value">{{ user.history|length }}</span>
+            <span class="label">Total Sessions</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+        <div class="stat-info">
+            <span class="value">{{ user.history|selectattr('type', 'equalto', 'quiz')|list|length }}</span>
+            <span class="label">Quizzes Taken</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+        <div class="stat-info">
+            <span class="value">{{ user.history|selectattr('type', 'equalto', 'notes')|list|length }}</span>
+            <span class="label">Notes Generated</span>
+        </div>
+    </div>
+</div>
+
+<div class="module-header flex-between mb-3">
+    <h2 class="display-font">Learning Modules</h2>
+    <div class="badge">SYSTEM READY</div>
+</div>
+
+<div class="modules-grid">
+    <a href="{{ url_for('notes') }}" class="action-card">
+        <i class="fas fa-pen-nib"></i>
+        <h3>Study Notes</h3>
+        <p>Transform any topic into comprehensive, structured study materials instantly.</p>
+        <div class="badge">START GENERATING</div>
+    </a>
+    
+    <a href="{{ url_for('chat') }}" class="action-card">
+        <i class="fas fa-comment-dots"></i>
+        <h3>AI Assistant</h3>
+        <p>Chat with your personal AI tutor to clarify doubts and explore complex topics.</p>
+        <div class="badge">START CHATTING</div>
+    </a>
+    
+    <a href="{{ url_for('quiz') }}" class="action-card">
+        <i class="fas fa-vial"></i>
+        <h3>Quiz Lab</h3>
+        <p>Test your knowledge with AI-driven adaptive quizzes on any subject.</p>
+        <div class="badge">TAKE A QUIZ</div>
+    </a>
+    
+    <a href="{{ url_for('recommendations') }}" class="action-card">
+        <i class="fas fa-compass"></i>
+        <h3>Pathfinder</h3>
+        <p>Discover customized learning paths and course suggestions based on your goals.</p>
+        <div class="badge">DISCOVER PATHS</div>
+    </a>
+</div>
+
+<div class="history-section">
+    <div class="history-header">
+        <h2>Academic Footprint</h2>
+        <a href="#" class="data-vault-link">Access Data Vault</a>
+    </div>
+    
+    <div class="glass-container history-list">
+        {% if user.history %}
+            {% for item in user.history[-5:]|reverse %}
+            <div class="history-item">
+                <div class="history-main">
+                    <div class="history-icon">
+                        {% if item.type == 'chat' %}<i class="fas fa-comment"></i>
+                        {% elif item.type == 'notes' %}<i class="fas fa-file-alt"></i>
+                        {% elif item.type == 'quiz' %}<i class="fas fa-bolt"></i>
+                        {% else %}<i class="fas fa-lightbulb"></i>{% endif %}
+                    </div>
+                    <div class="history-info">
+                        <div class="badge badge-sm">{{ item.type }}</div>
+                        <p>{{ item.topic or 'Neural Interaction Sequence' }}</p>
+                    </div>
+                </div>
+                <div class="history-date">
+                    {{ item.timestamp.strftime('%H:%M · %d %b') }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-database"></i>
+                <p>No activity log detected in current cycle.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-section">
+    <h1>Quiz Practice Lab</h1>
+    <p>Test your knowledge on any subject. Enter a topic below and start your quiz.</p>
+</div>
+
+<div class="auth-glass-card container-narrow">
+    <div class="form-field" id="quiz-init">
+        <label for="quiz-topic" class="display-font" style="font-size: 1.2rem; margin-bottom: 1rem; display: block; color: var(--accent);">Enter Topic for Quiz</label>
+        <div class="flex-row" style="display: flex; gap: 1rem; align-items: stretch;">
+            <input type="text" id="quiz-topic" class="form-input-v2" placeholder="e.g. Psychology, Macroeconomics, AI Algorithms" style="margin-bottom: 0; flex: 1;">
+            <button class="primary-btn auto-width p-btn-wide" id="quiz-btn" style="width: auto; white-space: nowrap;">Start Quiz</button>
+        </div>
+    </div>
+    
+    <div id="quiz-loader" class="loader-container hidden">
+        <div class="spinner"></div>
+        <p>Calibrating evaluation parameters... Stand by.</p>
+    </div>
+
+    <div id="quiz-display" class="quiz-display hidden">
+        <div class="result-header mb-3">
+            <h2 id="quiz-title">Evaluation Sequence</h2>
+            <div class="badge">Assessment in Progress</div>
+        </div>
+        <div id="questions-container"></div>
+        <button class="secondary-btn mt-2" id="restart-btn">New Evaluation Sequence</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const topicInput = document.getElementById('quiz-topic');
+    const quizBtn = document.getElementById('quiz-btn');
+    const quizDisplay = document.getElementById('quiz-display');
+    const loader = document.getElementById('quiz-loader');
+    const quizInit = document.getElementById('quiz-init');
+    const container = document.getElementById('questions-container');
+    const restartBtn = document.getElementById('restart-btn');
+
+    quizBtn.addEventListener('click', async () => {
+        const topic = topicInput.value.trim();
+        if (!topic) return;
+
+        quizInit.classList.add('hidden');
+        loader.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/generate-quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic })
+            });
+            const data = await response.json();
+            renderQuiz(topic, data.quiz);
+        } catch (error) {
+            alert("Evaluation initialization failed.");
+            quizInit.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+
+    function renderQuiz(topic, questions) {
+        document.getElementById('quiz-title').innerText = `${topic} Evaluation`;
+        container.innerHTML = '';
+        
+        questions.forEach((q, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-block';
+            qDiv.innerHTML = `
+                <div class="question-text">
+                    <span class="question-number">0${idx+1}.</span> ${q.question}
+                </div>
+                <div class="options-grid">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="checkAnswer(this, '${opt}', '${q.answer}')">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(qDiv);
+        });
+        
+        quizDisplay.classList.remove('hidden');
+    }
+
+    window.checkAnswer = (btn, selected, correct) => {
+        const parent = btn.parentElement;
+        const buttons = parent.querySelectorAll('button');
+        
+        buttons.forEach(b => b.style.pointerEvents = 'none');
+        
+        if (selected === correct) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('incorrect');
+            buttons.forEach(b => {
+                if (b.innerText.trim() === correct) {
+                    b.classList.add('correct');
+                }
+            });
+        }
+    };
+
+    restartBtn.addEventListener('click', () => {
+        quizDisplay.classList.add('hidden');
+        quizInit.classList.remove('hidden');
+        topicInput.value = '';
+    });
+</script>
+{% endblock %}
