@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block page_title %}Learning History Vault{% endblock %}
+
+{% block content %}
+<div class="academic-card-header" style="background-color: var(--surface-white); border-radius: var(--radius-lg); border: 1px solid var(--border-card); margin-bottom: 2rem; padding: 1.5rem 2rem;">
+    <div>
+        <span class="badge badge-gold mb-1">Persistent Records</span>
+        <h1 class="editorial-heading" style="font-size: 1.85rem;">Learning History Vault</h1>
+        <p style="font-size: 0.95rem; margin-top: 0.25rem;">Review, re-read, and manage your past AI study manuscripts, quiz assessments, conversations, and career roadmaps.</p>
+    </div>
+    <div class="badge badge-navy">
+        <i class="fas fa-database"></i> SQLite Database Encrypted
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="academic-card" style="margin-bottom: 2rem;">
+    <div class="academic-card-body" style="padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+        <div class="filter-pills" id="history-type-filters">
+            <button class="filter-pill active" data-type="all">All Records ({{ items|length }})</button>
+            <button class="filter-pill" data-type="notes"><i class="fas fa-book"></i> Notes</button>
+            <button class="filter-pill" data-type="quiz"><i class="fas fa-clipboard-question"></i> Quizzes</button>
+            <button class="filter-pill" data-type="chat"><i class="fas fa-comment"></i> Chats</button>
+            <button class="filter-pill" data-type="recommendation"><i class="fas fa-route"></i> Roadmaps</button>
+        </div>
+
+        <div style="min-width: 280px;">
+            <input type="text" id="history-search-input" class="form-control" placeholder="Search saved topics...">
+        </div>
+    </div>
+</div>
+
+<!-- History Table Card -->
+<div class="activity-card" id="history-container">
+    {% if items and items|length > 0 %}
+    <table class="activity-table" id="history-records-table">
+        <thead>
+            <tr>
+                <th style="width: 14%;">Module Type</th>
+                <th style="width: 48%;">Topic / Inquiry</th>
+                <th style="width: 23%;">Recorded Timestamp</th>
+                <th style="width: 15%; text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="history-table-body">
+            {% for item in items %}
+            <tr data-type="{{ item.type }}" data-topic="{{ item.topic|lower }}">
+                <td>
+                    {% if item.type == 'notes' %}
+                    <span class="badge badge-gold"><i class="fas fa-book"></i> Notes</span>
+                    {% elif item.type == 'quiz' %}
+                    <span class="badge badge-navy"><i class="fas fa-check-circle"></i> Quiz</span>
+                    {% elif item.type == 'chat' %}
+                    <span class="badge" style="background-color: var(--info-soft); color: var(--info);"><i class="fas fa-comment"></i> Chat</span>
+                    {% else %}
+                    <span class="badge badge-success"><i class="fas fa-route"></i> Roadmap</span>
+                    {% endif %}
+                </td>
+                <td class="activity-topic-cell">
+                    {{ item.topic or 'Academic Inquiry' }}
+                </td>
+                <td>
+                    <i class="far fa-clock" style="margin-right: 4px; color: var(--text-muted);"></i>
+                    {{ item.timestamp.strftime('%B %d, %Y · %H:%M') if item.timestamp else 'Archived Record' }}
+                </td>
+                <td style="text-align: right; white-space: nowrap;">
+                    <button class="btn btn-outline btn-sm view-item-btn" data-id="{{ item.id }}" title="Open full saved content">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-outline btn-sm delete-item-btn" data-id="{{ item.id }}" style="color: var(--error); border-color: rgba(194, 57, 52, 0.3); margin-left: 4px;" title="Delete record">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state-box">
+        <i class="fas fa-clock-rotate-left"></i>
+        <h4>No Historical Activity Found</h4>
+        <p>Your academic activity log will appear here as you interact with the study tools.</p>
+        <div style="margin-top: 1.5rem;">
+            <a href="{{ url_for('notes') }}" class="btn btn-gold btn-sm">Generate First Note</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const typeFilters = document.querySelectorAll('#history-type-filters .filter-pill');
+    const searchInput = document.getElementById('history-search-input');
+    const tableRows = document.querySelectorAll('#history-table-body tr');
+
+    function applyHistoryFilters() {
+        const activePill = document.querySelector('#history-type-filters .filter-pill.active');
+        const selectedType = activePill ? activePill.getAttribute('data-type') : 'all';
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+        tableRows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            const rowTopic = row.getAttribute('data-topic');
+            const typeMatch = (selectedType === 'all' || rowType === selectedType);
+            const queryMatch = (!query || rowTopic.includes(query));
+
+            if (typeMatch && queryMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    typeFilters.forEach(pill => {
+        pill.addEventListener('click', () => {
+            typeFilters.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            applyHistoryFilters();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyHistoryFilters);
+    }
+
+    // View Item in Modal
+    document.querySelectorAll('.view-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            window.openHistoryModal(id);
+        });
+    });
+
+    // Delete Item
+    document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm("Are you sure you want to permanently delete this academic record?")) {
+                try {
+                    const res = await fetch(`/api/history/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        const row = btn.closest('tr');
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 250);
+                    } else {
+                        alert("Failed to delete record.");
+                    }
+                } catch (e) {
+                    alert("Network error deleting record.");
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

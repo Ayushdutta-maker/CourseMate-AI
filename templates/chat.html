@@ -1,28 +1,71 @@
 {% extends "base.html" %}
 
-{% block content_class %}chat-page-wrapper{% endblock %}
+{% block page_title %}AI Academic Assistant{% endblock %}
 
 {% block content %}
-<div class="chat-window-integrated">
-    <div class="integrated-header">
-        <h1>ACADEMIC AI ASSISTANT</h1>
-        <div class="status-indicator">
-            <span class="dot"></span> SECURE NEURAL LINK
-        </div>
+<div class="academic-card-header" style="background-color: var(--surface-white); border-radius: var(--radius-lg); border: 1px solid var(--border-card); margin-bottom: 1.5rem; padding: 1.5rem 2rem;">
+    <div>
+        <span class="badge badge-gold mb-1">Interactive Scholarly Dialog</span>
+        <h1 class="editorial-heading" style="font-size: 1.85rem;">AI Academic Assistant</h1>
+        <p style="font-size: 0.95rem; margin-top: 0.25rem;">Clarify complex theoretical concepts, analyze equations, review proofs, or ask for targeted exam revision.</p>
     </div>
-
-    <div class="chat-messages" id="chat-messages">
-        <div class="message-bubble ai-bubble">
-            Hello! I am your AI Study Partner. How can I help you today?
-        </div>
-    </div>
-
-    <div class="chat-input-wrapper">
-        <div class="spinner spinner-sm hidden" id="chat-spinner" style="position: absolute; left: -40px; top: 12px;"></div>
-        <input type="text" id="chat-input" class="styled-input" placeholder="Query the academic engine..." autocomplete="off">
-        <button id="send-btn" class="send-btn">
-            <i class="fas fa-paper-plane"></i>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; background-color: var(--surface-warm); padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--border-subtle);">
+            <input type="checkbox" id="rag-toggle" style="accent-color: var(--gold-primary);">
+            <span>Ground in Active Document (RAG)</span>
+        </label>
+        <button id="clear-chat-btn" class="btn btn-outline btn-sm" title="Clear conversation history">
+            <i class="fas fa-trash-can"></i> Clear Chat
         </button>
+    </div>
+</div>
+
+<div class="chat-window">
+    <!-- Messages Scrollable Area -->
+    <div class="chat-messages-area" id="chat-messages-container">
+        <!-- Initial Welcome Message from Assistant -->
+        <div class="message-item ai-message">
+            <div class="message-avatar">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="message-bubble">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--navy-primary);">Greetings, Scholar</h3>
+                <p>I am your CourseMate AI academic tutor. You can ask me to explain mathematical principles, deconstruct algorithms, generate study points, or interpret curricular texts.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.88rem; color: var(--text-muted);">
+                    <em>Tip: Select one of the suggested prompts below or type your own question to begin.</em>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Composer Area -->
+    <div class="chat-composer-area">
+        <!-- Quick Prompt Suggestion Pills -->
+        <div class="prompt-suggestions">
+            <button class="suggestion-pill" data-prompt="Explain the difference between Supervised and Unsupervised Learning with real-world examples.">
+                <i class="fas fa-lightbulb"></i> Supervised vs Unsupervised ML
+            </button>
+            <button class="suggestion-pill" data-prompt="Summarize the core architecture of Transformers and Self-Attention in deep learning.">
+                <i class="fas fa-network-wired"></i> Transformer Architecture
+            </button>
+            <button class="suggestion-pill" data-prompt="Give a step-by-step mathematical proof of Bayes' Theorem and its significance in AI.">
+                <i class="fas fa-square-root-variable"></i> Bayes' Theorem Proof
+            </button>
+            <button class="suggestion-pill" data-prompt="Prepare 5 high-yield exam revision points for Operating System Deadlocks.">
+                <i class="fas fa-list-check"></i> OS Deadlock Revision
+            </button>
+            <button class="suggestion-pill" data-prompt="What is Time & Space Complexity and how does Big-O notation categorize algorithms?">
+                <i class="fas fa-clock"></i> Big-O Complexity
+            </button>
+        </div>
+
+        <div class="chat-input-bar">
+            <input type="text" id="chat-input" class="chat-text-input" placeholder="Type your academic inquiry (e.g. 'Derive backpropagation gradient equations')..." autocomplete="off">
+            <button id="chat-send-btn" class="btn btn-gold" style="height: 48px; min-width: 110px;">
+                <span id="btn-text"><i class="fas fa-paper-plane"></i> Send</span>
+                <span id="btn-spinner" class="hidden"><i class="fas fa-circle-notch fa-spin"></i></span>
+            </button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -30,50 +73,120 @@
 {% block scripts %}
 <script>
     const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-    const chatMessages = document.getElementById('chat-messages');
-    const spinner = document.getElementById('chat-spinner');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const messagesContainer = document.getElementById('chat-messages-container');
+    const clearBtn = document.getElementById('clear-chat-btn');
+    const ragToggle = document.getElementById('rag-toggle');
+    const suggestionPills = document.querySelectorAll('.suggestion-pill');
 
-    function addMessage(text, isUser) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message-bubble ${isUser ? 'user-bubble' : 'ai-bubble'}`;
-        
+    function appendMessage(text, isUser = false, ragActive = false) {
+        const item = document.createElement('div');
+        item.className = `message-item ${isUser ? 'user-message' : 'ai-message'}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = isUser ? '<i class="fas fa-user-graduate"></i>' : '<i class="fas fa-brain"></i>';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+
         if (isUser) {
-            msgDiv.innerText = text;
+            bubble.textContent = text;
         } else {
-            msgDiv.innerHTML = marked.parse(text);
+            let renderedHtml = marked.parse(text);
+            if (ragActive) {
+                renderedHtml = `<div style="display:inline-block; margin-bottom:0.6rem;" class="badge badge-gold"><i class="fas fa-file-shield"></i> Grounded in Document Context</div>` + renderedHtml;
+            }
+            bubble.innerHTML = renderedHtml;
         }
-        
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        item.appendChild(avatar);
+        item.appendChild(bubble);
+        messagesContainer.appendChild(item);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    async function handleSend() {
+    async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
 
-        addMessage(message, true);
+        appendMessage(message, true);
         chatInput.value = '';
-        spinner.classList.remove('hidden');
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+
+        // Loading bubble placeholder
+        const loadingItem = document.createElement('div');
+        loadingItem.className = 'message-item ai-message';
+        loadingItem.id = 'temp-loading-msg';
+        loadingItem.innerHTML = `
+            <div class="message-avatar"><i class="fas fa-brain"></i></div>
+            <div class="message-bubble" style="color: var(--text-muted); display: flex; align-items: center; gap: 0.6rem;">
+                <i class="fas fa-circle-notch fa-spin"></i> Synthesizing academic response...
+            </div>
+        `;
+        messagesContainer.appendChild(loadingItem);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
+            const useRag = ragToggle ? ragToggle.checked : false;
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ message, use_rag: useRag })
             });
+
             const data = await response.json();
-            addMessage(data.response, false);
+            const loadingElem = document.getElementById('temp-loading-msg');
+            if (loadingElem) loadingElem.remove();
+
+            if (response.ok && data.response) {
+                appendMessage(data.response, false, data.rag_active);
+            } else {
+                appendMessage(`**Academic Engine Notice**: ${data.error || 'Failed to generate response. Please try again.'}`, false);
+            }
         } catch (error) {
-            addMessage("Sorry, the neural link was interrupted. Please re-engage.", false);
+            const loadingElem = document.getElementById('temp-loading-msg');
+            if (loadingElem) loadingElem.remove();
+            appendMessage("**Network Connection Error**: Unable to reach the academic backend. Please ensure the local service is active.", false);
         } finally {
-            spinner.classList.add('hidden');
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnSpinner.classList.add('hidden');
+            chatInput.focus();
         }
     }
 
-    sendBtn.addEventListener('click', handleSend);
+    sendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    suggestionPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            const prompt = pill.getAttribute('data-prompt');
+            chatInput.value = prompt;
+            sendMessage();
+        });
+    });
+
+    clearBtn.addEventListener('click', () => {
+        if (confirm("Reset current conversation view?")) {
+            messagesContainer.innerHTML = `
+                <div class="message-item ai-message">
+                    <div class="message-avatar"><i class="fas fa-brain"></i></div>
+                    <div class="message-bubble">
+                        <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem; color: var(--navy-primary);">Conversation Reset</h3>
+                        <p>How can I assist your scholarship today?</p>
+                    </div>
+                </div>
+            `;
+        }
     });
 </script>
 {% endblock %}

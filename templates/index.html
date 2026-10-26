@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseMate AI — Intelligent Academic Assistant & Study Companion</title>
+    <meta name="description" content="A premier AI-powered academic learning workspace for students and researchers. Generate structured study manuscripts, interactive quizzes, career roadmaps, and grounded document RAG Q&A.">
+    
+    <!-- Design System Typography & Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <!-- Public Editorial Navigation Bar -->
+    <header class="public-header" id="top-nav">
+        <div class="public-nav-container">
+            <a href="{{ url_for('index') }}" class="brand-mark" id="brand-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>CourseMate<span class="brand-accent">AI</span></span>
+            </a>
+
+            <nav>
+                <ul class="public-nav-links" id="nav-links">
+                    <li><a href="#hero" class="active">Home</a></li>
+                    <li><a href="#welcome">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#workflow">How It Works</a></li>
+                    <li><a href="#courses">Courses</a></li>
+                    <li><a href="{{ url_for('chat') }}">AI Assistant</a></li>
+                    <li><a href="{{ url_for('notes') }}">Study Tools</a></li>
+                </ul>
+            </nav>
+
+            <div class="public-nav-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-gold btn-sm" id="launch-workspace-btn">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Launch Workspace
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Academic Photographic Background & Overlay -->
+    <section class="hero-section" id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <i class="fas fa-sparkles"></i> Academic Intelligence Platform · MCA Project
+            </div>
+            <h1 class="hero-title">Your Personal AI Study Companion</h1>
+            <p class="hero-description">
+                Learn smarter, understand complex topics, create study notes, practice quizzes, and build your career roadmap — all in one intelligent academic workspace.
+            </p>
+            <div class="hero-cta-group">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-gold btn-lg" id="start-learning-cta">
+                    <i class="fas fa-compass"></i> Start Learning
+                </a>
+                <a href="#features" class="btn btn-beige btn-lg" id="explore-tools-cta">
+                    <i class="fas fa-layer-group"></i> Explore AI Tools
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Welcome Section (Editorial University Style) -->
+    <section class="welcome-section" id="welcome">
+        <div class="welcome-container">
+            <div class="welcome-content">
+                <span class="badge badge-gold mb-2">Modern Academic Methodology</span>
+                <h2 class="editorial-heading">A Smarter Way to Learn</h2>
+                <div class="editorial-divider"></div>
+                <p class="lead">
+                    Higher education requires synthesizing massive volumes of research, technical textbooks, and theoretical models. CourseMate AI bridges the gap between raw curricular data and deep conceptual comprehension.
+                </p>
+                <p>
+                    Built with natural language processing, vector retrieval, and structured academic prompt synthesis, the platform assists scholars in organizing revision notes, testing knowledge through adaptive MCQ labs, and planning disciplined career trajectories.
+                </p>
+                <div style="margin-top: 2rem;">
+                    <a href="{{ url_for('notes') }}" class="btn btn-outline" id="welcome-explore-notes">
+                        Try Study Notes Generator <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="welcome-card-feature">
+                <div class="feature-bullet-item">
+                    <div class="bullet-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div>
+                        <h4>Scholarly Depth & Structure</h4>
+                        <p style="font-size: 0.9rem;">Unlike conversational chatbots, CourseMate crafts formal manuscripts complete with definitions, axioms, and exam questions.</p>
+                    </div>
+                </div>
+
+                <div class="feature-bullet-item">
+                    <div class="bullet-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div>
+                        <h4>Document-Grounded RAG</h4>
+                        <p style="font-size: 0.9rem;">Upload course lecture slides, research papers, or syllabus text for context-grounded answers via TF-IDF cosine similarity.</p>
+                    </div>
+                </div>
+
+                <div class="feature-bullet-item">
+                    <div class="bullet-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div>
+                        <h4>Persistent Academic Footprint</h4>
+                        <p style="font-size: 0.9rem;">Every session, generated manuscript, and evaluation score is preserved in your private academic history vault.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Grid -->
+    <section class="features-section" id="features">
+        <div class="section-header-center">
+            <span class="sub-label">Capabilities & Modules</span>
+            <h2 class="editorial-heading">Engineered for Academic Rigor</h2>
+            <p>Every tool is designed to support a dedicated stage of your learning and revision lifecycle.</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- 1. AI Academic Assistant -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>AI Academic Assistant</h3>
+                <p>Engage with an intelligent tutor equipped to clarify complex derivations, review proofs, summarize textbooks, and answer challenging questions.</p>
+                <a href="{{ url_for('chat') }}" class="feature-link" id="feature-chat-link">
+                    Open Assistant <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 2. Smart Study Notes -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>Smart Study Notes</h3>
+                <p>Generate university-grade manuscripts from topics or uploaded PDFs with introduction, nomenclature, key formulas, revision points, and viva questions.</p>
+                <a href="{{ url_for('notes') }}" class="feature-link" id="feature-notes-link">
+                    Generate Notes <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 3. Interactive Quiz Lab -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-clipboard-question"></i>
+                </div>
+                <h3>Interactive Quiz Lab</h3>
+                <p>Test your mastery with adaptive multiple-choice questions. Review instant score breakdowns, percentage analysis, and detailed pedagogical explanations.</p>
+                <a href="{{ url_for('quiz') }}" class="feature-link" id="feature-quiz-link">
+                    Start a Quiz <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 4. Document-Based Learning (RAG) -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-file-shield"></i>
+                </div>
+                <h3>Document-Based RAG</h3>
+                <p>Upload syllabus notes or research PDFs. The multi-chunk TF-IDF vector retrieval engine grounds questions exclusively in your course literature.</p>
+                <a href="{{ url_for('notes') }}" class="feature-link" id="feature-rag-link">
+                    Upload & Learn <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 5. Course Recommendations -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-compass"></i>
+                </div>
+                <h3>Course Recommendations</h3>
+                <p>Explore recommended academic modules using TF-IDF cosine similarity matching based on your evolving interests, skill levels, and learning goals.</p>
+                <a href="{{ url_for('recommendations') }}" class="feature-link" id="feature-courses-link">
+                    Discover Courses <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- 6. Career Roadmap Generator -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-road"></i>
+                </div>
+                <h3>Career Pathfinder</h3>
+                <p>Translate your academic passions into a phased roadmap complete with skill milestones, capstone project ideas, and a structured 30-day action plan.</p>
+                <a href="{{ url_for('recommendations') }}" class="feature-link" id="feature-roadmap-link">
+                    Build Roadmap <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="workflow-section" id="workflow">
+        <div class="section-header-center">
+            <span class="sub-label">Methodology</span>
+            <h2 class="editorial-heading">How CourseMate AI Works</h2>
+            <p>A transparent, five-stage academic synthesis and retrieval pipeline.</p>
+        </div>
+
+        <div class="workflow-steps-container">
+            <div class="workflow-step-card">
+                <div class="step-number">1</div>
+                <h4>Input & Upload</h4>
+                <p>Enter any academic topic or upload a lecture document (PDF or TXT) into the workspace.</p>
+            </div>
+
+            <div class="workflow-step-card">
+                <div class="step-number">2</div>
+                <h4>Text Processing</h4>
+                <p>The parser extracts, sanitizes, and partitions text into overlapping semantic passages.</p>
+            </div>
+
+            <div class="workflow-step-card">
+                <div class="step-number">3</div>
+                <h4>Vector Retrieval</h4>
+                <p>TF-IDF vectorization and cosine similarity identify the most relevant context chunks.</p>
+            </div>
+
+            <div class="workflow-step-card">
+                <div class="step-number">4</div>
+                <h4>Neural Synthesis</h4>
+                <p>The AI engine combines the context with structured prompts to generate academic manuscripts.</p>
+            </div>
+
+            <div class="workflow-step-card">
+                <div class="step-number">5</div>
+                <h4>Revise & Test</h4>
+                <p>Export notes to PDF/Markdown, test your understanding in Quiz Lab, and track progress.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Discovery Section (Inspired by University Reference Cards) -->
+    <section class="courses-section" id="courses">
+        <div class="section-header-center">
+            <span class="sub-label">Curricular Catalog</span>
+            <h2 class="editorial-heading">Academic Course Recommendations</h2>
+            <p>Explore curated computer science, artificial intelligence, and engineering modules.</p>
+        </div>
+
+        <!-- Filter Pills & Search -->
+        <div class="course-filter-bar">
+            <div class="filter-pills" id="course-filter-pills">
+                <button class="filter-pill active" data-category="all">All Disciplines</button>
+                <button class="filter-pill" data-category="Artificial Intelligence and Machine Learning">AI & Machine Learning</button>
+                <button class="filter-pill" data-category="Data Science">Data Science</button>
+                <button class="filter-pill" data-category="Python Programming">Python</button>
+                <button class="filter-pill" data-category="Computer Science Fundamentals">CS Fundamentals</button>
+                <button class="filter-pill" data-category="Cybersecurity">Cybersecurity</button>
+                <button class="filter-pill" data-category="Mathematics and Statistics">Mathematics</button>
+            </div>
+
+            <div style="min-width: 260px;">
+                <input type="text" id="course-search-input" class="form-control" placeholder="Search courses or keywords...">
+            </div>
+        </div>
+
+        <!-- Course Cards Grid -->
+        <div class="courses-grid" id="courses-catalog-grid">
+            {% for course in featured_courses %}
+            <div class="course-card" data-category="{{ course.category }}">
+                {% if 'Intelligence' in course.category or 'Machine' in course.category %}
+                <img src="{{ url_for('static', filename='images/course-ai.jpg') }}" alt="{{ course.title }}" class="course-card-image">
+                {% elif 'Data' in course.category or 'Python' in course.category %}
+                <img src="{{ url_for('static', filename='images/course-ds.jpg') }}" alt="{{ course.title }}" class="course-card-image">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/hero-bg.jpg') }}" alt="{{ course.title }}" class="course-card-image">
+                {% endif %}
+                
+                <div class="course-card-body">
+                    <div class="course-card-meta">
+                        <span class="badge badge-gold">{{ course.level }}</span>
+                        <span><i class="far fa-clock"></i> {{ course.duration }}</span>
+                    </div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <div class="course-card-footer">
+                        <span style="font-size: 0.8rem; color: var(--gold-dark); font-weight: 600;">
+                            <i class="fas fa-layer-group"></i> {{ course.category }}
+                        </span>
+                        <a href="{{ url_for('recommendations') }}" class="btn btn-outline btn-sm">
+                            View Syllabus
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Final Call to Action Banner -->
+    <section class="cta-banner-section">
+        <div class="cta-banner-content">
+            <span class="badge badge-gold mb-2">Elevate Your Scholarship</span>
+            <h2 class="editorial-heading">Begin Your Intelligent Study Session</h2>
+            <p>Access your personal academic workspace, generate structured notes, and practice quizzes with immediate pedagogical feedback.</p>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-gold btn-lg" id="final-cta-btn">
+                    <i class="fas fa-graduation-cap"></i> Enter Academic Dashboard
+                </a>
+                <a href="{{ url_for('chat') }}" class="btn btn-outline btn-lg" style="color: #FFFFFF; border-color: rgba(255, 255, 255, 0.4);">
+                    <i class="fas fa-comments"></i> Ask AI Tutor
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3 class="editorial-heading">CourseMate AI</h3>
+                <p>
+                    Intelligent Academic Assistant & Study Companion designed for university-level research, revision, and curriculum mastery.
+                </p>
+                <div style="margin-top: 1rem; color: var(--gold-primary); font-size: 0.85rem;">
+                    <i class="fas fa-award"></i> Master of Computer Applications (AI & ML) Capstone
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#welcome">About Platform</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#courses">Courses</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Academic Dashboard</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Study Modules</h4>
+                <ul>
+                    <li><a href="{{ url_for('chat') }}">AI Assistant Tutor</a></li>
+                    <li><a href="{{ url_for('notes') }}">Study Notes Generator</a></li>
+                    <li><a href="{{ url_for('quiz') }}">Quiz Practice Lab</a></li>
+                    <li><a href="{{ url_for('recommendations') }}">Career Pathfinder</a></li>
+                    <li><a href="{{ url_for('history_page') }}">Learning History Vault</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Architecture</h4>
+                <ul>
+                    <li><span style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.65);">NVIDIA NIM & Llama / Gemma</span></li>
+                    <li><span style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.65);">TF-IDF Vector Retrieval (RAG)</span></li>
+                    <li><span style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.65);">Cosine Similarity Matcher</span></li>
+                    <li><span style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.65);">SQLAlchemy Persistence</span></li>
+                    <li><span style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.65);">Flask Python Web Framework</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>
+                &copy; 2026 CourseMate AI. All academic rights reserved.
+            </div>
+            <div>
+                Crafted with Modern Academic Intelligence · MCA AI & ML
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts for Landing Page -->
+    <script>
+        // Category filtering for courses
+        const filterPills = document.querySelectorAll('.filter-pill');
+        const courseCards = document.querySelectorAll('.course-card');
+        const searchInput = document.getElementById('course-search-input');
+
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                filterPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                const selectedCategory = pill.getAttribute('data-category');
+                applyFilters(selectedCategory, searchInput.value.toLowerCase().trim());
+            });
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const activePill = document.querySelector('.filter-pill.active');
+                const category = activePill ? activePill.getAttribute('data-category') : 'all';
+                applyFilters(category, query);
+            });
+        }
+
+        function applyFilters(category, query) {
+            courseCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const cardText = card.innerText.toLowerCase();
+                
+                const categoryMatch = (category === 'all' || cardCategory === category);
+                const queryMatch = (!query || cardText.includes(query));
+                
+                if (categoryMatch && queryMatch) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

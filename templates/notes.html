@@ -1,80 +1,149 @@
 {% extends "base.html" %}
 
+{% block page_title %}Study Notes Generator{% endblock %}
+
 {% block content %}
-<div class="header-section">
-    <h1>Study Notes Generator</h1>
-    <p>Enter a topic below to generate a comprehensive, structured study guide instantly.</p>
+<div class="academic-card-header" style="background-color: var(--surface-white); border-radius: var(--radius-lg); border: 1px solid var(--border-card); margin-bottom: 2rem; padding: 1.5rem 2rem;">
+    <div>
+        <span class="badge badge-gold mb-1">Curricular Synthesis Engine</span>
+        <h1 class="editorial-heading" style="font-size: 1.85rem;">Study Notes Generator</h1>
+        <p style="font-size: 0.95rem; margin-top: 0.25rem;">Transform topics or lecture documents into structured, university-grade study manuscripts.</p>
+    </div>
+    <div class="active-doc-pill">
+        <i class="fas fa-file-pdf"></i>
+        <span>PDF & TXT Supported</span>
+    </div>
 </div>
 
-<div class="auth-glass-card">
-    <div class="form-field">
-        <label for="topic" class="display-font" style="font-size: 1.2rem; margin-bottom: 1rem; display: block; color: var(--accent);">What's the subject or document?</label>
-        
-        <div class="dual-input-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <div class="input-group">
-                <input type="text" id="topic" class="form-input-v2" placeholder="e.g. Quantum Physics, History of Art" style="margin-bottom: 0;">
-                <p class="field-hint" style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem;">Enter a topic for AI-driven research...</p>
-            </div>
+<!-- Input Form Section -->
+<div class="academic-card" id="notes-form-card">
+    <div class="academic-card-body">
+        <form id="notes-form" enctype="multipart/form-data">
+            <div class="notes-input-grid">
+                <!-- Left: Topic & Dropdown Selectors -->
+                <div>
+                    <div class="form-group">
+                        <label for="note-topic">Subject or Research Topic</label>
+                        <input type="text" id="note-topic" name="topic" class="form-control" placeholder="e.g. Distributed Consensus Algorithms, Quantum Superposition, Neural Networks">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: block;">Enter a concept, chapter title, or leave blank if uploading a document.</span>
+                    </div>
 
-            <div class="options-row" style="display: flex; gap: 1rem; margin-top: -0.5rem;">
-                <div class="input-group" style="flex: 1;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Academic Level</label>
-                    <select id="level" class="form-input-v2" style="padding: 0.6rem;">
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate" selected>Intermediate</option>
-                        <option value="Advanced">Advanced / Expert</option>
-                    </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="note-level">Academic Level</label>
+                            <select id="note-level" name="level" class="form-control">
+                                <option value="Undergraduate" selected>Undergraduate Degree</option>
+                                <option value="Postgraduate / Masters">Postgraduate (MCA / M.Tech / M.Sc)</option>
+                                <option value="Doctoral / Advanced Research">Doctoral / Advanced Research</option>
+                                <option value="High School / Foundation">Foundational / High School</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="note-mode">Synthesis Mode</label>
+                            <select id="note-mode" name="mode" class="form-control">
+                                <option value="Comprehensive Manuscript" selected>Comprehensive Manuscript</option>
+                                <option value="Deep Dive with Technical Derivations">Deep Dive & Technical Derivations</option>
+                                <option value="High-Yield Quick Revision">High-Yield Quick Revision</option>
+                                <option value="Exam Preparation & Viva Cram">Exam Preparation & Viva Cram</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group" style="flex: 1;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Generation Mode</label>
-                    <select id="mode" class="form-input-v2" style="padding: 0.6rem;">
-                        <option value="Standard">Standard</option>
-                        <option value="Deep Dive" selected>Deep Dive</option>
-                        <option value="Quick Revision">Quick Revision</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="divider-text" style="text-align: center; color: var(--accent); opacity: 0.5; font-size: 0.9rem;">— OR UPLOAD SOURCE —</div>
-
-            <div class="input-group">
-                <div class="file-upload-zone" id="drop-zone">
-                    <input type="file" id="note-file" accept=".pdf,.txt" style="display: none;">
-                    <label for="note-file" class="file-label">
-                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                        <span>Click to upload PDF/TXT or drag & drop</span>
-                        <p id="file-name" class="hidden" style="margin-top: 0.5rem; color: var(--accent); font-weight: bold;"></p>
+                <!-- Right: File Drag & Drop Upload Zone -->
+                <div>
+                    <label style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-navy); margin-bottom: 0.5rem;">
+                        Optional: Upload Source Document
                     </label>
+                    <div class="file-upload-box" id="drop-zone">
+                        <input type="file" id="note-file" name="file" accept=".pdf,.txt" style="display: none;">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                        <h4 style="font-size: 0.95rem; margin-bottom: 0.35rem;">Click to browse or drag & drop</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">PDF or TXT lecture notes (up to 15MB)</p>
+                        <div id="file-preview-pill" class="badge badge-gold hidden" style="margin-top: 0.75rem; max-width: 100%; text-overflow: ellipsis; overflow: hidden;">
+                            <i class="fas fa-file-lines"></i> <span id="file-name-text">filename.pdf</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <button class="primary-btn p-btn-wide" id="gen-btn" style="margin-top: 1rem;">Process & Generate Notes</button>
-        </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+                <button type="button" id="reset-form-btn" class="btn btn-outline">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button type="submit" id="generate-notes-btn" class="btn btn-gold btn-lg">
+                    <span id="gen-btn-text"><i class="fas fa-feather-pointed"></i> Synthesize Study Manuscript</span>
+                    <span id="gen-btn-spinner" class="hidden"><i class="fas fa-circle-notch fa-spin"></i> Generating Manuscript...</span>
+                </button>
+            </div>
+        </form>
     </div>
-    
-    <div id="loader" class="loader-container hidden">
-        <div class="spinner"></div>
-        <p>Analyzing source data... Synthesizing academic manuscript.</p>
-    </div>
+</div>
 
-    <div id="notes-result" class="result-container hidden">
-        <div class="result-header">
-            <h2 id="result-title">Manuscript Output</h2>
-            <button class="badge clickable-badge" onclick="window.print()">
-                <i class="fas fa-print"></i> Export to PDF
+<!-- Loading Animation Indicator -->
+<div id="notes-loader" class="loader-wrapper hidden">
+    <div class="academic-spinner"></div>
+    <h3 class="editorial-heading" style="font-size: 1.4rem;">Synthesizing Academic Manuscript</h3>
+    <p style="max-width: 480px; margin-top: 0.5rem; font-size: 0.95rem;">
+        Extracting semantic passages, analyzing core definitions, organizing illustrative examples, and grounding curriculum context...
+    </p>
+</div>
+
+<!-- Output Section: Manuscript & Integrated RAG Q&A -->
+<div id="notes-output-section" class="hidden">
+    <!-- Top Action Toolbar -->
+    <div class="manuscript-actions-bar">
+        <div>
+            <span class="badge badge-gold"><i class="fas fa-check-circle"></i> Manuscript Ready</span>
+            <span id="output-meta-text" style="font-size: 0.85rem; color: var(--text-muted); margin-left: 0.5rem;">Generated just now</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button id="copy-notes-btn" class="btn btn-outline btn-sm" title="Copy markdown to clipboard">
+                <i class="fas fa-copy"></i> Copy Markdown
+            </button>
+            <button id="download-md-btn" class="btn btn-outline btn-sm" title="Download as .md file">
+                <i class="fas fa-download"></i> Save .MD
+            </button>
+            <button onclick="window.print()" class="btn btn-outline btn-sm" title="Print or save as PDF">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+            <button id="new-notes-btn" class="btn btn-gold btn-sm">
+                <i class="fas fa-plus"></i> New Note
             </button>
         </div>
-        <div id="notes-content" class="output-paper"></div>
-        
-        <!-- RAG Chat Integration -->
-        <div class="rag-chat-section mt-4">
-            <div class="divider-text">QUANTUM NOTES Q&A</div>
-            <div id="rag-messages" class="rag-chat-history">
-                <div class="ai-msg">I've parsed the document. You can now ask specific questions based on this content.</div>
+    </div>
+
+    <!-- Formal Manuscript Rendered Body -->
+    <div class="manuscript-paper" id="manuscript-container">
+        <!-- Rendered Markdown will appear here -->
+    </div>
+
+    <!-- Integrated Document RAG Q&A Section -->
+    <div class="academic-card" style="margin-top: 2.5rem;">
+        <div class="academic-card-header" style="background-color: var(--surface-warm);">
+            <div>
+                <span class="badge badge-gold mb-1">Contextual Vector Q&A</span>
+                <h3 style="font-size: 1.25rem; color: var(--text-navy);">Grounded Document Inquiry</h3>
+                <p style="font-size: 0.85rem; color: var(--text-slate);">Ask follow-up questions strictly evaluated against this manuscript's text via TF-IDF cosine similarity.</p>
             </div>
-            <div class="rag-input-container">
-                <input type="text" id="rag-input" placeholder="Ask anything about these notes..." class="form-input-v2">
-                <button id="rag-send" class="primary-btn auto-width"><i class="fas fa-paper-plane"></i></button>
+            <div class="badge badge-navy" id="rag-chunk-badge">
+                <i class="fas fa-cubes"></i> Chunks Indexed
+            </div>
+        </div>
+        <div class="academic-card-body">
+            <div id="rag-history-box" style="display: flex; flex-direction: column; gap: 1rem; max-height: 280px; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1.25rem;">
+                <div style="background-color: var(--surface-warm); padding: 0.85rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="color: var(--gold-dark); margin-right: 6px;"></i>
+                    Manuscript successfully indexed into the RAG vector cache. You can now inquire about specific theorems, definitions, or revision items.
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+                <input type="text" id="rag-question-input" class="form-control" placeholder="Ask a targeted question about this manuscript (e.g. 'What is the primary theorem in Section 2?')...">
+                <button id="rag-query-btn" class="btn btn-navy" style="min-width: 110px;">
+                    <i class="fas fa-search"></i> Query
+                </button>
             </div>
         </div>
     </div>
@@ -83,99 +152,186 @@
 
 {% block scripts %}
 <script>
-    const topicInput = document.getElementById('topic');
+    const form = document.getElementById('notes-form');
+    const topicInput = document.getElementById('note-topic');
     const fileInput = document.getElementById('note-file');
-    const fileNameDisplay = document.getElementById('file-name');
-    const genBtn = document.getElementById('gen-btn');
-    const resultDiv = document.getElementById('notes-result');
-    const contentDiv = document.getElementById('notes-content');
-    const resultTitle = document.getElementById('result-title');
-    const loader = document.getElementById('loader');
+    const dropZone = document.getElementById('drop-zone');
+    const filePill = document.getElementById('file-preview-pill');
+    const fileNameText = document.getElementById('file-name-text');
+    const formCard = document.getElementById('notes-form-card');
+    const loader = document.getElementById('notes-loader');
+    const outputSection = document.getElementById('notes-output-section');
+    const manuscriptContainer = document.getElementById('manuscript-container');
+    const genBtn = document.getElementById('generate-notes-btn');
+    const genBtnText = document.getElementById('gen-btn-text');
+    const genBtnSpinner = document.getElementById('gen-btn-spinner');
+    const copyBtn = document.getElementById('copy-notes-btn');
+    const downloadBtn = document.getElementById('download-md-btn');
+    const newNotesBtn = document.getElementById('new-notes-btn');
+    const resetBtn = document.getElementById('reset-form-btn');
 
-    // Handle file name display
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            fileNameDisplay.innerText = `Selected: ${fileInput.files[0].name}`;
-            fileNameDisplay.classList.remove('hidden');
+    let currentNotesMarkdown = "";
+    let currentTopicTitle = "";
+
+    // File Drag & Drop Handling
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect(fileInput.files[0]);
         }
     });
 
-    genBtn.addEventListener('click', async () => {
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            handleFileSelect(fileInput.files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        fileNameText.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        filePill.classList.remove('hidden');
+    }
+
+    resetBtn.addEventListener('click', () => {
+        form.reset();
+        filePill.classList.add('hidden');
+    });
+
+    // Form Submit Handler
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
         const topic = topicInput.value.trim();
         const file = fileInput.files[0];
 
         if (!topic && !file) {
-            alert("Please provide a topic or upload a file.");
+            alert("Please specify a topic title or upload a PDF/TXT lecture document.");
             return;
         }
 
+        formCard.classList.add('hidden');
+        outputSection.classList.add('hidden');
         loader.classList.remove('hidden');
-        resultDiv.classList.add('hidden');
+        genBtn.disabled = true;
+        genBtnText.classList.add('hidden');
+        genBtnSpinner.classList.remove('hidden');
 
         try {
-            const formData = new FormData();
-            if (topic) formData.append('topic', topic);
-            if (file) formData.append('file', file);
-            formData.append('level', document.getElementById('level').value);
-            formData.append('mode', document.getElementById('mode').value);
-
+            const formData = new FormData(form);
             const response = await fetch('/api/generate-notes', {
                 method: 'POST',
                 body: formData
             });
+
             const data = await response.json();
-            
-            resultTitle.innerText = topic || (file ? `Analysis: ${file.name}` : "Manuscript Output");
-            contentDiv.innerHTML = marked.parse(data.notes);
-            resultDiv.classList.remove('hidden');
+
+            if (response.ok && data.notes) {
+                currentNotesMarkdown = data.notes;
+                currentTopicTitle = data.topic || "Study Manuscript";
+                manuscriptContainer.innerHTML = marked.parse(data.notes);
+                document.getElementById('output-meta-text').textContent = `Subject: ${currentTopicTitle} · Level: ${document.getElementById('note-level').value}`;
+                document.getElementById('rag-chunk-badge').textContent = `${data.chunk_count || 3} Chunks Indexed`;
+                
+                outputSection.classList.remove('hidden');
+                
+                // Update sidebar document indicator
+                const sidebarDocTitle = document.getElementById('sidebar-doc-title');
+                if (sidebarDocTitle) sidebarDocTitle.textContent = currentTopicTitle;
+            } else {
+                alert(data.error || "Failed to synthesize study notes. Please check your parameters and try again.");
+                formCard.classList.remove('hidden');
+            }
         } catch (error) {
-            alert("Synthesis link failure. Please re-initiate.");
+            alert("Network connection error while contacting notes engine.");
+            formCard.classList.remove('hidden');
         } finally {
             loader.classList.add('hidden');
+            genBtn.disabled = false;
+            genBtnText.classList.remove('hidden');
+            genBtnSpinner.classList.add('hidden');
         }
     });
 
-    // RAG Chat Logic
-    const ragInput = document.getElementById('rag-input');
-    const ragSend = document.getElementById('rag-send');
-    const ragMessages = document.getElementById('rag-messages');
+    // Copy to clipboard
+    copyBtn.addEventListener('click', () => {
+        if (!currentNotesMarkdown) return;
+        navigator.clipboard.writeText(currentNotesMarkdown).then(() => {
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => copyBtn.innerHTML = originalText, 2000);
+        });
+    });
 
-    async function sendRagQuery() {
+    // Download Markdown File
+    downloadBtn.addEventListener('click', () => {
+        if (!currentNotesMarkdown) return;
+        const blob = new Blob([currentNotesMarkdown], { type: 'text/markdown;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const safeName = currentTopicTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        a.download = `coursemate_${safeName}_notes.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    newNotesBtn.addEventListener('click', () => {
+        outputSection.classList.add('hidden');
+        formCard.classList.remove('hidden');
+        topicInput.focus();
+    });
+
+    // RAG Grounded Query Handler
+    const ragInput = document.getElementById('rag-question-input');
+    const ragBtn = document.getElementById('rag-query-btn');
+    const ragHistory = document.getElementById('rag-history-box');
+
+    async function submitRagQuery() {
         const query = ragInput.value.trim();
         if (!query) return;
 
-        // User message
-        const userDiv = document.createElement('div');
-        userDiv.className = 'user-msg';
-        userDiv.innerText = query;
-        ragMessages.appendChild(userDiv);
+        // Append student query
+        const qElem = document.createElement('div');
+        qElem.style.cssText = 'background-color: var(--navy-primary); color: #FFF; padding: 0.75rem 1rem; border-radius: var(--radius-sm); align-self: flex-end; max-width: 85%; font-size: 0.9rem;';
+        qElem.innerHTML = `<strong>You:</strong> ${query}`;
+        ragHistory.appendChild(qElem);
         ragInput.value = '';
-        ragMessages.scrollTop = ragMessages.scrollHeight;
+        ragHistory.scrollTop = ragHistory.scrollHeight;
+
+        // Placeholder response
+        const aElem = document.createElement('div');
+        aElem.style.cssText = 'background-color: var(--surface-white); border: 1px solid var(--border-subtle); padding: 0.85rem 1rem; border-radius: var(--radius-sm); align-self: flex-start; max-width: 90%; font-size: 0.9rem;';
+        aElem.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Searching document chunks...`;
+        ragHistory.appendChild(aElem);
+        ragHistory.scrollTop = ragHistory.scrollHeight;
 
         try {
-            const response = await fetch('/api/rag-chat', {
+            const res = await fetch('/api/rag-chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query })
             });
-            const data = await response.json();
-            
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'ai-msg';
-            aiDiv.innerText = data.response;
-            ragMessages.appendChild(aiDiv);
-            ragMessages.scrollTop = ragMessages.scrollHeight;
-        } catch (error) {
-            const errDiv = document.createElement('div');
-            errDiv.className = 'ai-msg error';
-            errDiv.innerText = "Quantum link severed. Retrying...";
-            ragMessages.appendChild(errDiv);
+            const data = await res.json();
+            aElem.innerHTML = marked.parse(data.response || "No context found in document.");
+        } catch (err) {
+            aElem.innerHTML = `<span style="color: var(--error);">Error retrieving document context.</span>`;
         }
+        ragHistory.scrollTop = ragHistory.scrollHeight;
     }
 
-    ragSend.addEventListener('click', sendRagQuery);
+    ragBtn.addEventListener('click', submitRagQuery);
     ragInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendRagQuery();
+        if (e.key === 'Enter') submitRagQuery();
     });
 </script>
 {% endblock %}

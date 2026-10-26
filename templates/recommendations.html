@@ -1,55 +1,154 @@
 {% extends "base.html" %}
 
+{% block page_title %}Career Pathfinder & Course Matcher{% endblock %}
+
 {% block content %}
-<div class="header-section">
-    <h1>Course Pathfinder</h1>
-    <p>Discover courses and topics tailored to your interests and career goals.</p>
+<div class="academic-card-header" style="background-color: var(--surface-white); border-radius: var(--radius-lg); border: 1px solid var(--border-card); margin-bottom: 2rem; padding: 1.5rem 2rem;">
+    <div>
+        <span class="badge badge-gold mb-1">Academic Trajectory Advisor</span>
+        <h1 class="editorial-heading" style="font-size: 1.85rem;">Career Pathfinder & Course Matcher</h1>
+        <p style="font-size: 0.95rem; margin-top: 0.25rem;">Formulate a milestone-driven career roadmap and discover tailored university modules via TF-IDF cosine similarity.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <button class="filter-pill active" id="tab-pathfinder-btn">Career Pathfinder</button>
+        <button class="filter-pill" id="tab-courses-btn">Course Vector Matcher</button>
+    </div>
 </div>
 
-<div class="auth-glass-card container-narrow">
-    <div class="form-field" id="rec-init">
-        <div class="career-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
-            <div class="input-group">
-                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Interests & Passion</label>
-                <input type="text" id="interest-input" class="form-input-v2" placeholder="e.g. AI, Space, Finance">
-            </div>
-            <div class="input-group">
-                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Current Skill Level</label>
-                <select id="level-input" class="form-input-v2">
-                    <option value="Beginner">Beginner / Student</option>
-                    <option value="Intermediate">Intermediate / Junior Prof</option>
-                    <option value="Advanced">Advanced / Expert</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Core Goal</label>
-                <input type="text" id="goal-input" class="form-input-v2" placeholder="e.g. Become a Sr. Data Scientist">
-            </div>
-            <div class="input-group">
-                <label style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Time Availability</label>
-                <select id="time-input" class="form-input-v2">
-                    <option value="Part-time (5-10 hrs/week)">Part-time (5-10 hrs/week)</option>
-                    <option value="Moderate (15-25 hrs/week)">Moderate (15-25 hrs/week)</option>
-                    <option value="Full-immersion (40+ hrs/week)">Full-immersion (40+ hrs/week)</option>
-                </select>
-            </div>
+<!-- TAB 1: Career Pathfinder Form & Output -->
+<div id="pathfinder-tab-content">
+    <div class="academic-card" id="pathfinder-form-card">
+        <div class="academic-card-body">
+            <h2 class="editorial-heading" style="font-size: 1.45rem; margin-bottom: 0.5rem;">Student Telemetry & Career Objectives</h2>
+            <p style="color: var(--text-slate); margin-bottom: 1.75rem; font-size: 0.95rem;">Provide your core interests, current proficiency level, and long-term career ambition.</p>
+
+            <form id="career-form">
+                <div class="career-form-grid">
+                    <div class="form-group">
+                        <label for="career-interests">Academic & Technical Interests</label>
+                        <input type="text" id="career-interests" class="form-control" placeholder="e.g. Computer Vision, Deep Learning, Distributed Databases, FinTech" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="career-level">Current Proficiency Level</label>
+                        <select id="career-level" class="form-control">
+                            <option value="Beginner / Student" selected>Beginner / Undergraduate Student</option>
+                            <option value="Intermediate / Junior Professional">Intermediate / Junior Developer</option>
+                            <option value="Advanced / Postgraduate Scholar">Advanced / Postgraduate Researcher</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="career-goal">Primary Career Objective / Role</label>
+                        <input type="text" id="career-goal" class="form-control" placeholder="e.g. Lead AI/ML Research Engineer, Full-Stack Cloud Architect" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="career-time">Weekly Study Commitment</label>
+                        <select id="career-time" class="form-control">
+                            <option value="Moderate (10-15 hrs/week)" selected>Moderate (10–15 hours / week)</option>
+                            <option value="Part-time (5-10 hrs/week)">Light / Part-time (5–10 hours / week)</option>
+                            <option value="Intensive Immersion (25+ hrs/week)">Intensive Immersion (25+ hours / week)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+                    <button type="submit" id="generate-roadmap-btn" class="btn btn-gold btn-lg">
+                        <span id="roadmap-btn-text"><i class="fas fa-route"></i> Synthesize Career Roadmap</span>
+                        <span id="roadmap-btn-spinner" class="hidden"><i class="fas fa-circle-notch fa-spin"></i> Formulating Trajectory...</span>
+                    </button>
+                </div>
+            </form>
         </div>
-        <button class="primary-btn p-btn-wide mt-4" id="generate-btn">Synthesize Career Roadmap</button>
     </div>
 
-    <div id="rec-loader" class="loader-container hidden">
-        <div class="spinner"></div>
-        <p>Parsing trajectory data... Stand by.</p>
+    <!-- Loading State -->
+    <div id="pathfinder-loader" class="loader-wrapper hidden">
+        <div class="academic-spinner"></div>
+        <h3 class="editorial-heading" style="font-size: 1.4rem;">Formulating Academic Roadmap</h3>
+        <p style="max-width: 460px; margin-top: 0.5rem; font-size: 0.95rem;">
+            Analyzing market skill requirements, sequencing milestones, matching courses via TF-IDF cosine similarity, and curating capstone portfolio projects...
+        </p>
     </div>
 
-    <div id="results-section" class="result-container hidden">
-        <div class="result-header mb-3">
-            <h2>Optimized Pathways</h2>
-            <button class="badge clickable-badge" onclick="resetSearch()">Refine Parameters</button>
+    <!-- Output Section: Roadmap & Matched Courses -->
+    <div id="pathfinder-output-section" class="hidden">
+        <div class="manuscript-actions-bar">
+            <div>
+                <span class="badge badge-gold"><i class="fas fa-check-circle"></i> Roadmap Formulated</span>
+                <span id="roadmap-goal-subtitle" style="font-size: 0.85rem; color: var(--text-muted); margin-left: 0.5rem;"></span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button id="copy-roadmap-btn" class="btn btn-outline btn-sm">
+                    <i class="fas fa-copy"></i> Copy Markdown
+                </button>
+                <button onclick="window.print()" class="btn btn-outline btn-sm">
+                    <i class="fas fa-print"></i> Print / PDF
+                </button>
+                <button id="re-parameterize-btn" class="btn btn-gold btn-sm">
+                    <i class="fas fa-sliders"></i> Modify Goals
+                </button>
+            </div>
         </div>
-        
-        <div id="recommendations-content" class="output-paper" style="max-height: 60vh; overflow-y: auto;">
-            <!-- Roadmap content as Markdown -->
+
+        <!-- Rendered Roadmap Manuscript -->
+        <div class="manuscript-paper" id="roadmap-manuscript-box"></div>
+
+        <!-- Matching Recommended Courses (From TF-IDF Logic) -->
+        <div class="academic-card" style="margin-top: 2rem;">
+            <div class="academic-card-header" style="background-color: var(--surface-warm);">
+                <div>
+                    <span class="badge badge-gold mb-1">Vector Similarity Match</span>
+                    <h3 style="font-size: 1.25rem;">Algorithmic Course Recommendations</h3>
+                </div>
+                <span class="badge badge-navy">TF-IDF & Cosine Similarity</span>
+            </div>
+            <div class="academic-card-body">
+                <div class="courses-grid" id="matched-courses-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <!-- Injected matched course cards -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: Standalone Course Matcher & Catalog -->
+<div id="courses-tab-content" class="hidden">
+    <div class="academic-card">
+        <div class="academic-card-body">
+            <h2 class="editorial-heading" style="font-size: 1.45rem; margin-bottom: 0.5rem;">Interactive Course Vector Matcher</h2>
+            <p style="color: var(--text-slate); margin-bottom: 1.5rem; font-size: 0.95rem;">
+                Enter keywords, research interests, or technology stacks. The system vectorizes your query using TF-IDF and ranks university courses by cosine similarity.
+            </p>
+
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem;">
+                <input type="text" id="catalog-search-query" class="form-control" placeholder="e.g. 'neural network backpropagation and deep learning in python'...">
+                <button id="run-course-matcher-btn" class="btn btn-gold" style="min-width: 140px;">
+                    <i class="fas fa-magnifying-glass"></i> Find Matches
+                </button>
+            </div>
+
+            <div class="courses-grid" id="standalone-catalog-grid">
+                {% for course in courses %}
+                <div class="course-card">
+                    <div class="course-card-body">
+                        <div class="course-card-meta">
+                            <span class="badge badge-gold">{{ course.level }}</span>
+                            <span><i class="far fa-clock"></i> {{ course.duration }}</span>
+                        </div>
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description }}</p>
+                        <div class="course-card-footer">
+                            <span style="font-size: 0.8rem; color: var(--gold-dark); font-weight: 600;">
+                                <i class="fas fa-layer-group"></i> {{ course.category }}
+                            </span>
+                            <span class="badge badge-navy">Available</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -57,24 +156,61 @@
 
 {% block scripts %}
 <script>
-    const interestInput = document.getElementById('interest-input');
-    const generateBtn = document.getElementById('generate-btn');
-    const loader = document.getElementById('rec-loader');
-    const initSection = document.getElementById('rec-init');
-    const resultsSection = document.getElementById('results-section');
-    generateBtn.addEventListener('click', async () => {
-        const interests = interestInput.value.trim();
-        const level = document.getElementById('level-input').value;
-        const goal = document.getElementById('goal-input').value.trim();
-        const time = document.getElementById('time-input').value;
+    // Tab Switching Logic
+    const tabPathfinderBtn = document.getElementById('tab-pathfinder-btn');
+    const tabCoursesBtn = document.getElementById('tab-courses-btn');
+    const pathfinderTab = document.getElementById('pathfinder-tab-content');
+    const coursesTab = document.getElementById('courses-tab-content');
 
-        if (!interests || !goal) {
-            alert("Please specify your interests and goal.");
-            return;
-        }
+    tabPathfinderBtn.addEventListener('click', () => {
+        tabPathfinderBtn.classList.add('active');
+        tabCoursesBtn.classList.remove('active');
+        pathfinderTab.classList.remove('hidden');
+        coursesTab.classList.add('hidden');
+    });
 
-        initSection.classList.add('hidden');
+    tabCoursesBtn.addEventListener('click', () => {
+        tabCoursesBtn.classList.add('active');
+        tabPathfinderBtn.classList.remove('active');
+        coursesTab.classList.remove('hidden');
+        pathfinderTab.classList.add('hidden');
+    });
+
+    // Pathfinder Form Submit
+    const form = document.getElementById('career-form');
+    const interestsInput = document.getElementById('career-interests');
+    const levelSelect = document.getElementById('career-level');
+    const goalInput = document.getElementById('career-goal');
+    const timeSelect = document.getElementById('career-time');
+
+    const formCard = document.getElementById('pathfinder-form-card');
+    const loader = document.getElementById('pathfinder-loader');
+    const outputSection = document.getElementById('pathfinder-output-section');
+    const manuscriptBox = document.getElementById('roadmap-manuscript-box');
+    const matchedGrid = document.getElementById('matched-courses-grid');
+    const genBtn = document.getElementById('generate-roadmap-btn');
+    const btnText = document.getElementById('roadmap-btn-text');
+    const btnSpinner = document.getElementById('roadmap-btn-spinner');
+    const copyBtn = document.getElementById('copy-roadmap-btn');
+    const reParamBtn = document.getElementById('re-parameterize-btn');
+
+    let currentRoadmapMarkdown = "";
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const interests = interestsInput.value.trim();
+        const goal = goalInput.value.trim();
+        const level = levelSelect.value;
+        const time = timeSelect.value;
+
+        if (!interests || !goal) return;
+
+        formCard.classList.add('hidden');
+        outputSection.classList.add('hidden');
         loader.classList.remove('hidden');
+        genBtn.disabled = true;
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
 
         try {
             const response = await fetch('/api/recommend', {
@@ -82,30 +218,121 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ interests, level, goal, time })
             });
+
             const data = await response.json();
-            
-            if (data.roadmap) {
-                displayRecommendations(data.roadmap);
+            if (response.ok && data.roadmap) {
+                currentRoadmapMarkdown = data.roadmap;
+                manuscriptBox.innerHTML = marked.parse(data.roadmap);
+                document.getElementById('roadmap-goal-subtitle').textContent = `Career Goal: ${goal}`;
+
+                // Render Matched Courses
+                matchedGrid.innerHTML = '';
+                if (data.matched_courses && data.matched_courses.length > 0) {
+                    data.matched_courses.forEach(c => {
+                        const card = document.createElement('div');
+                        card.className = 'course-card';
+                        card.innerHTML = `
+                            <div class="course-card-body">
+                                <div class="course-card-meta">
+                                    <span class="badge badge-success"><i class="fas fa-bullseye"></i> ${c.match_pct || '90%'} Match</span>
+                                    <span><i class="far fa-clock"></i> ${c.duration}</span>
+                                </div>
+                                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">${c.title}</h3>
+                                <p style="font-size: 0.88rem; margin-bottom: 1rem;">${c.description}</p>
+                                <div class="course-card-footer">
+                                    <span style="font-size: 0.78rem; color: var(--gold-dark); font-weight: 600;">${c.category}</span>
+                                    <span class="badge badge-gold">${c.level}</span>
+                                </div>
+                            </div>
+                        `;
+                        matchedGrid.appendChild(card);
+                    });
+                }
+                outputSection.classList.remove('hidden');
             } else {
-                throw new Error("Empty roadmap");
+                alert(data.error || "Failed to formulate career roadmap. Please try again.");
+                formCard.classList.remove('hidden');
             }
         } catch (error) {
-            alert("Trajectory simulation failure. The AI engine is currently optimizing. Please try again.");
-            initSection.classList.remove('hidden');
+            alert("Connection error while requesting career roadmap.");
+            formCard.classList.remove('hidden');
         } finally {
             loader.classList.add('hidden');
+            genBtn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnSpinner.classList.add('hidden');
         }
     });
 
-    function displayRecommendations(roadmap) {
-        document.getElementById('recommendations-content').innerHTML = marked.parse(roadmap);
-        resultsSection.classList.remove('hidden');
+    copyBtn.addEventListener('click', () => {
+        if (!currentRoadmapMarkdown) return;
+        navigator.clipboard.writeText(currentRoadmapMarkdown).then(() => {
+            const orig = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => copyBtn.innerHTML = orig, 2000);
+        });
+    });
+
+    reParamBtn.addEventListener('click', () => {
+        outputSection.classList.add('hidden');
+        formCard.classList.remove('hidden');
+    });
+
+    // Standalone TF-IDF Search Trigger
+    const courseMatcherInput = document.getElementById('catalog-search-query');
+    const courseMatcherBtn = document.getElementById('run-course-matcher-btn');
+    const standaloneCatalogGrid = document.getElementById('standalone-catalog-grid');
+
+    async function runCourseMatcher() {
+        const query = courseMatcherInput.value.trim();
+        if (!query) return;
+
+        courseMatcherBtn.disabled = true;
+        courseMatcherBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Matching...';
+
+        try {
+            const response = await fetch('/api/course-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.results) {
+                standaloneCatalogGrid.innerHTML = '';
+                data.results.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'course-card';
+                    card.innerHTML = `
+                        <div class="course-card-body">
+                            <div class="course-card-meta">
+                                <span class="badge badge-success"><i class="fas fa-bullseye"></i> ${c.match_pct} Cosine Match</span>
+                                <span><i class="far fa-clock"></i> ${c.duration}</span>
+                            </div>
+                            <h3>${c.title}</h3>
+                            <p>${c.description}</p>
+                            <div class="course-card-footer">
+                                <span style="font-size: 0.8rem; color: var(--gold-dark); font-weight: 600;">
+                                    <i class="fas fa-layer-group"></i> ${c.category}
+                                </span>
+                                <span class="badge badge-gold">${c.level}</span>
+                            </div>
+                        </div>
+                    `;
+                    standaloneCatalogGrid.appendChild(card);
+                });
+            }
+        } catch (e) {
+            alert("Error running vector search.");
+        } finally {
+            courseMatcherBtn.disabled = false;
+            courseMatcherBtn.innerHTML = '<i class="fas fa-magnifying-glass"></i> Find Matches';
+        }
     }
 
-    function resetSearch() {
-        resultsSection.classList.add('hidden');
-        initSection.classList.remove('hidden');
-        interestInput.value = '';
-    }
+    courseMatcherBtn.addEventListener('click', runCourseMatcher);
+    courseMatcherInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') runCourseMatcher();
+    });
 </script>
 {% endblock %}
